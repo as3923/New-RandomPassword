@@ -1,6 +1,6 @@
 # New-RandomPassword
 |Number|Character|
-|------|---------|
+|:---:|:---:|
 |0| |
 |1||
 |2||
