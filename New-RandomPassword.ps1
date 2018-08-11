@@ -9,13 +9,13 @@
     Generate a random complex password
 
 .DESCRIPTION
-    Generate a random complex password at least 16 characters long with
+    Generate a random complex password at least 12 characters long with
     no symbols.
     
 .PARAMETER Length
     The required length of the password.
 
-    Default: 16
+    Default: 12
     Minimum: 4
 
 .EXAMPLE
@@ -29,9 +29,6 @@ function New-RandomPassword {
         [Parameter(HelpMessage="Enter minimum length of the password. Minimum 3")]
         [ValidateScript({$_ -ge 4})]
         [Int] $Length = 16,
-        [Parameter(HelpMessage="Enter complexity requirement. Minimum 1 - Maximum 4")]
-        [ValidateScript({$_ -ge 1})]
-        [Int] $Completxity = 4,
         [Parameter(HelpMessage="Exclude symbols (e.g. @#$%)")]
         [Switch] $NoSymbols,
         [Parameter(HelpMessage="Exclude numbers (e.g. 123456)")]
@@ -90,27 +87,9 @@ function New-RandomPassword {
             Throw "There are no characters to create a password with. Try using less exclusions."
         }
 
-        if ($exclusions.Count -gt 0) {
-            foreach ($character in $exclusions) {
-                $set = $set -ne $character
-            }
-        }
-
     }
     PROCESS {
-        do {
-            $randomPassword = $null
-            $d = 0
-            for ($i=1; $i -le $Length; $i++) {
-                $c = $set | Get-Random
-                $randomPassword += [char][byte]$c
-            }
-            Write-Verbose $randomPassword            
-            if ($randomPassword -match "[^a-zA-Z0-9]") { $d++ }
-            if ($randomPassword -match "[0-9]") { $d++ }
-		    if ($randomPassword -cmatch "[a-z]") { $d++ }
-		    if ($randomPassword -cmatch "[A-Z]") { $d++ }
-        } while ($d -lt $Completxity)
+
         $randomPassword
     }
 }
