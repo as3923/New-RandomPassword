@@ -42,7 +42,7 @@ function New-RandomPassword {
         [Switch] $NoUppercase,
         [Parameter(HelpMessage="Exclude similar characters (e.g. i, l, 1, L, o, 0, O)")]
         [Switch] $NoSimilarChars,
-        [Parameter(HelpMessage="Exclude ambiguous characters ({ } [ ] ( ) / \ ' "" ` ~ , ; : . < >)")]
+        [Parameter(HelpMessage="Exclude ambiguous characters (e.g. { } [ ] ( ) / \ ' "" ` ~ , ; : . < >)")]
         [Switch] $NoAmbiguousChars
     )
     BEGIN {
@@ -83,7 +83,7 @@ function New-RandomPassword {
 
         ### Ambiguous Characters ###
         if ($NoAmbiguousChars) {
-            $exclusions += 34,39,40,41,44,46,47,58,59,60,62,91,92,93,96,123,125,126
+            $exclusions += 34,39,40,41,44,46,47,58,59,60,62,76,91,92,93,96,123,125,126
         }
 
         if ($set.Count -eq 0) {
