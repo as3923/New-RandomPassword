@@ -17,9 +17,42 @@
 
     Default: 16
     Minimum: 4
+    
+.PARAMETER Complexity
+    The required complexity of the password. It must contain characters 
+    from (x) of the following four (4) categories:
+    * Numbers
+    * Symbols
+    * Uppercase
+    * Lowercase
+    
+    Default: 4
+    Minimum: 0 (No complexity requirement)
+
+.PARAMETER NoSymbols
+    Specify this switch to exclude symbols (e.g. @#$%)
+    
+.PARAMETER NoNumbers
+    Specify this switch to exclude numbers (e.g. 123456)
+
+.PARAMETER NoLowercase
+    Specify this switch to exclude lowercase letters
+    (e.g. abcdefgh)
+
+.PARAMETER NoUppercase
+    Specify this switch to exclude uppercase letters
+    (e.g. ABCDEFGH)
+
+.PARAMETER NoSimilarChars
+    Specify this switch to exclude similar characters 
+    (e.g. i, l, 1, L, o, 0, O)
+
+.PARAMETER NoAmbiguousChars
+    Specify this switch to exclude ambiguous characters
+    (e.g. { } [ ] ( ) / \ ' "" ` ~ , ; : . < >)
 
 .EXAMPLE
-    New-RandomPassword -Length 8
+    New-RandomPassword -Length 8 -Complexity 3 -NoNumbers -NoSimilarChars -NoAmbiguousChars
 
 #>
 
@@ -29,27 +62,29 @@ function New-RandomPassword {
         [Parameter(HelpMessage="Enter minimum length of the password. Minimum 3")]
         [ValidateScript({$_ -ge 4})]
         [Int] $Length = 16,
-        [Parameter(HelpMessage="Enter complexity requirement. Minimum 1 - Maximum 4")]
-        [ValidateScript({$_ -ge 1})]
-        [Int] $Completxity = 4,
-        [Parameter(HelpMessage="Exclude symbols (e.g. @#$%)")]
+        [Parameter(HelpMessage="Enter complexity requirement. Minimum 0 - Maximum 4")]
+        [ValidateScript({($_ -ge 0) -and ($_ -le 4)})]
+        [Int] $Complexity = 4,
+        [Parameter(HelpMessage="Exclude symbols")]
         [Switch] $NoSymbols,
-        [Parameter(HelpMessage="Exclude numbers (e.g. 123456)")]
+        [Parameter(HelpMessage="Exclude numbers")]
         [Switch] $NoNumbers,
-        [Parameter(HelpMessage="Exclude lowercahse characters (e.g. abcdefgh)")]
+        [Parameter(HelpMessage="Exclude lowercase characters")]
         [Switch] $NoLowercase,
-        [Parameter(HelpMessage="Exclude uppercase characters (e.g. ABCDEFGH)")]
+        [Parameter(HelpMessage="Exclude uppercase characters")]
         [Switch] $NoUppercase,
-        [Parameter(HelpMessage="Exclude similar characters (e.g. i, l, 1, L, o, 0, O)")]
+        [Parameter(HelpMessage="Exclude similar characters")]
         [Switch] $NoSimilarChars,
         [Parameter(HelpMessage="Exclude ambiguous characters (e.g. { } [ ] ( ) / \ ' "" ` ~ , ; : . < >)")]
         [Switch] $NoAmbiguousChars
     )
     BEGIN {
+        $exclusionCount = 0
         $set = @()
         $exclusions = @()
         ### Symbols ###
         if ($NoSymbols) {
+            $exclusionCount += 1
         } else {
             $set += 33..47
             $set += 58..64
@@ -60,18 +95,21 @@ function New-RandomPassword {
 
         ### Numbers ###
         if ($NoNumbers) {
+            $exclusionCount += 1
         } else {
             $set += 48..57
         }
 
         ### Lowercase ###
         if ($NoLowercase) {
+            $exclusionCount += 1
         } else {
             $set += 97..122
         }
 
         ### Uppercase ###
         if ($NoUppercase) {
+            $exclusionCount += 1
         } else {
             $set += 65..90
         }
@@ -88,6 +126,10 @@ function New-RandomPassword {
 
         if ($set.Count -eq 0) {
             Throw "There are no characters to create a password with. Try using less exclusions."
+        }
+        
+        if ($Complexity -gt (4 - $exclusionCount)) {
+            Throw "There are too many exclusions to meet the input complexity requirements."
         }
 
         if ($exclusions.Count -gt 0) {
@@ -110,7 +152,7 @@ function New-RandomPassword {
             if ($randomPassword -match "[0-9]") { $d++ }
 		    if ($randomPassword -cmatch "[a-z]") { $d++ }
 		    if ($randomPassword -cmatch "[A-Z]") { $d++ }
-        } while ($d -lt $Completxity)
+        } while ($d -lt $Complexity)
         $randomPassword
     }
 }
